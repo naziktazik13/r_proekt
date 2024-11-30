@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-3">
+    <h2>Профиль пользователя: {{ user.username }}</h2>
+    <p>Электронная почта: {{ user.email }}</p>
+    <p>Биография: {{ user.profile.bio }}</p>
+    <p>Местоположение: {{ user.profile.location }}</p>
+    <p>Дата рождения: {{ user.profile.birth_date }}</p>
+
+    <h3>Мои посты</h3>
+    {% if user.blog_posts.all %}
+        <ul>
+        {% for post in user.blog_posts.all %}
+            <li><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a> - Опубликовано: {{ post.publish }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>Вы еще не создали ни одного поста.</p>
+    {% endif %}
+</div>
+{% endblock %}

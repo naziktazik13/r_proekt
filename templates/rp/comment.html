@@ -1,0 +1,26 @@
+{% for comment in comments %}
+<div class="ml-4">
+    <p><strong>Ответ от <a href="{% url 'user_profile' username=comment.author.username %}">{{ comment.author.username }}</a></strong>: {{ comment.content }}</p>
+    {% if comment.image %}
+    <img src="{{ comment.image.url }}" alt="Изображение ответа" style="max-width: 100%;">
+    {% endif %}
+    <p><small>Опубликовано: {{ comment.created }}</small></p>
+    <form method="post" action="{% url 'add_comment_like' comment.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-success">Лайк ({{ comment.likes }})</button>
+    </form>
+    <form method="post" action="{% url 'add_comment_dislike' comment.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-danger">Дизлайк ({{ comment.dislikes }})</button>
+    </form>
+    {% if request.user == comment.author %}
+    <a href="{% url 'comment_edit' comment.pk %}" class="btn btn-sm btn-primary">Редактировать</a>
+    <a href="{% url 'comment_delete' comment.pk %}" class="btn btn-sm btn-danger">Удалить</a>
+    {% endif %}
+    <a href="{% url 'add_comment' comment.post.id %}?parent={{ comment.id }}" class="btn btn-sm btn-secondary">Ответить</a>
+
+    {% if comment.replies.exists %}
+    {% include 'rp/comments.html' with comments=comment.replies.all %}
+    {% endif %}
+</div>
+{% endfor %}

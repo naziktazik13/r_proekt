@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-3">
+    <h2>{{ post.title }}</h2>
+    <p>Автор: <a href="{% url 'user_profile' username=post.author.username %}">{{ post.author.username }}</a></p>
+    <p>Опубликовано: {{ post.publish }}</p>
+    <p>{{ post.content }}</p>
+    {% if post.media %}
+    <img src="{{ post.media.url }}" alt="{{ post.title }}" style="max-width: 100%;">
+    {% endif %}
+    {% if post.video %}
+    <video controls style="max-width: 100%;">
+        <source src="{{ post.video.url }}" type="video/mp4">
+        Ваш браузер не поддерживает видео.
+    </video>
+    {% endif %}
+
+    <p>Вы вошли как: {{ request.user.username }}</p>
+
+    {% if request.user == post.author %}
+    <a href="{% url 'post_edit' post.pk %}" class="btn btn-primary">Редактировать</a>
+    <a href="{% url 'post_delete' post.pk %}" class="btn btn-danger">Удалить</a>
+    {% endif %}
+
+    <form method="post" action="{% url 'add_like' post.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Лайк ({{ post.likes }})</button>
+    </form>
+    <form method="post" action="{% url 'add_dislike' post.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Дизлайк ({{ post.dislikes }})</button>
+    </form>
+
+    <h3>Комментарии</h3>
+    {% for comment in post.comments.all %}
+        {% if comment.parent is None %}
+        <div>
+            <p><strong><a href="{% url 'user_profile' username=comment.author.username %}">{{ comment.author.username }}</a></strong>: {{ comment.content }}</p>
+            {% if comment.image %}
+            <img src="{{ comment.image.url }}" alt="Изображение комментария" style="max-width: 100%;">
+            {% endif %}
+            <p><small>Опубликовано: {{ comment.created }}</small></p>
+            <form method="post" action="{% url 'add_comment_like' comment.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-success">Лайк ({{ comment.likes }})</button>
+            </form>
+            <form method="post" action="{% url 'add_comment_dislike' comment.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger">Дизлайк ({{ comment.dislikes }})</button>
+            </form>
+            {% if request.user == comment.author %}
+            <a href="{% url 'comment_edit' comment.pk %}" class="btn btn-sm btn-primary">Редактировать</a>
+            <a href="{% url 'comment_delete' comment.pk %}" class="btn btn-sm btn-danger">Удалить</a>
+            {% endif %}
+            <a href="{% url 'add_comment' post.id %}?parent={{ comment.id }}" class="btn btn-sm btn-secondary">Ответить</a>
+
+            {% if comment.replies.exists %}
+            {% for reply in comment.replies.all %}
+            <div class="ml-4">
+                <p><strong>Ответ от <a href="{% url 'user_profile' username=reply.author.username %}">{{ reply.author.username }}</a></strong>: {{ reply.content }}</p>
+                {% if reply.image %}
+                <img src="{{ reply.image.url }}" alt="Изображение ответа" style="max-width: 100%;">
+                {% endif %}
+                <p><small>Опубликовано: {{ reply.created }}</small></p>
+                <form method="post" action="{% url 'add_comment_like' reply.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-success">Лайк ({{ reply.likes }})</button>
+                </form>
+                <form method="post" action="{% url 'add_comment_dislike' reply.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger">Дизлайк ({{ reply.dislikes }})</button>
+                </form>
+                {% if request.user == reply.author %}
+                <a href="{% url 'comment_edit' reply.pk %}" class="btn btn-sm btn-primary">Редактировать</a>
+                <a href="{% url 'comment_delete' reply.pk %}" class="btn btn-sm btn-danger">Удалить</a>
+                {% endif %}
+                <a href="{% url 'add_comment' post.id %}?parent={{ reply.id }}" class="btn btn-sm btn-secondary">Ответить</a>
+
+                {% if reply.replies.exists %}
+                {% for subreply in reply.replies.all %}
+                <div class="ml-4">
+                    <p><strong>Ответ от <a href="{% url 'user_profile' username=subreply.author.username %}">{{ subreply.author.username }}</a></strong>: {{ subreply.content }}</p>
+                    {% if subreply.image %}
+                    <img src="{{ subreply.image.url }}" alt="Изображение ответа" style="max-width: 100%;">
+                    {% endif %}
+                    <p><small>Опубликовано: {{ subreply.created }}</small></p>
+                    <form method="post" action="{% url 'add_comment_like' subreply.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-success">Лайк ({{ subreply.likes }})</button>
+                    </form>
+                    <form method="post" action="{% url 'add_comment_dislike' subreply.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-danger">Дизлайк ({{ subreply.dislikes }})</button>
+                    </form>
+                    {% if request.user == subreply.author %}
+                    <a href="{% url 'comment_edit' subreply.pk %}" class="btn btn-sm btn-primary">Редактировать</a>
+                    <a href="{% url 'comment_delete' subreply.pk %}" class="btn btn-sm btn-danger">Удалить</a>
+                    {% endif %}
+                    <a href="{% url 'add_comment' post.id %}?parent={{ subreply.id }}" class="btn btn-sm btn-secondary">Ответить</a>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+        {% endif %}
+    {% empty %}
+    <p>Комментариев пока нет.</p>
+    {% endfor %}
+
+    <a href="{% url 'add_comment' post.id %}" class="btn btn-secondary">Добавить комментарий</a>
+</div>
+{% endblock %}
