@@ -118,7 +118,6 @@ class AddCommentView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy('post_detail', kwargs={'pk': self.kwargs['post_id']})
 
-
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Comment
     form_class = CommentForm
@@ -131,7 +130,6 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('post_detail', kwargs={'pk': self.get_object().post.pk})
 
-
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
     template_name = 'rp/delete_comment.html'
@@ -142,7 +140,6 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('post_detail', kwargs={'pk': self.get_object().post.pk})
-
 
 class UserProfileView(DetailView):
     model = User
@@ -211,7 +208,6 @@ class AddCommentLikeView(LoginRequiredMixin, View):
             comment.likes += 1
         comment.save()
         return redirect('post_detail', pk=comment.post.pk)
-
 
 class AddCommentDislikeView(LoginRequiredMixin, View):
     def post(self, request, pk, *args, **kwargs):
