@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rest or run</title>
+    <meta charset="utf-8">
+    <title>сайт</title>
+    <meta name="author" content="Vincent Garreau" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 <body>
     <nav>
-
         <a class="navbar-brand" href="{% url 'post-list' %}">Головна</a>
         <a href="{% url 'register' %}">Реєстрація</a>
         <form action="{% url 'logout' %}" method="post">
@@ -25,5 +25,6 @@
 
     {% block content %}
     {% endblock %}
+   
 </body>
 </html>

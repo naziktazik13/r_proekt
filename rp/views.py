@@ -226,4 +226,3 @@ class AddCommentDislikeView(LoginRequiredMixin, View):
             comment.dislikes += 1
         comment.save()
         return redirect('post_detail', pk=comment.post.pk)
-
