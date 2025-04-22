@@ -17,7 +17,7 @@ from django.views import View
 from django.http import HttpResponse
 from datetime import datetime
 from django.http import HttpResponse
-
+from django.http import Http404
 class CustomLoginView(LoginView):
     template_name= "rp/login.html"
     redirect_authenticated_user = True
@@ -71,6 +71,15 @@ class PostDetailView(DetailView):
     model = Post
     template_name = 'rp/post_detail.html'
     context_object_name = 'post'
+    
+    def get_object(self):
+        obj = super().get_object()
+        # Проверяем, что пост опубликован или принадлежит текущему пользователю
+        if obj.status == 'published' or obj.author == self.request.user:
+            return obj
+        else:
+            from django.http import HttpResponseForbidden
+            raise Http404("У вас нет доступа к этому черновику")
 
 class ProfileDetailView(LoginRequiredMixin, DetailView):
     model = Profile
@@ -155,7 +164,14 @@ class UserProfileView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.get_object()
-        context['posts'] = Post.objects.filter(author=user)
+        
+        # Если пользователь просматривает свой профиль - показываем все посты
+        # Иначе - только опубликованные
+        if self.request.user == user:
+            context['posts'] = Post.objects.filter(author=user)
+        else:
+            context['posts'] = Post.objects.filter(author=user, status='published')
+            
         return context
  
 class AddLikeView(LoginRequiredMixin, View):

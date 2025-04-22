@@ -17,6 +17,13 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['bio', 'location', 'birth_date']
+        widgets = {
+            'birth_date': forms.DateInput(attrs={
+                'type': 'date',  # Это превратит обычное текстовое поле в поле выбора даты
+                'class': 'form-control',
+                'placeholder': 'Выберите дату рождения'
+            })
+        }
 
 class CommentForm(forms.ModelForm):
     class Meta:
